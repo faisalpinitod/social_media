@@ -16,7 +16,7 @@ app.use("/api",userRouter)
 app.use("/post",postRpouter)
 
 
-app.listen(6060,async()=>{
+app.listen(7070,async()=>{
     try{
         await connection 
         console.log("The server is connected to DB")

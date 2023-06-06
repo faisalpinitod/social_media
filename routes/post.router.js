@@ -1,14 +1,15 @@
 const express=require("express")
 const {PostModel}=require("../model/post.model")
-const { authenticate } = require("../middleware/authenticate.middleware")
+const { authenticate }  = require("../middleware/authenticate.middleware")
 
 const postRpouter=express.Router()
 
 postRpouter.post("/posts",authenticate,async(req,res)=>{
     const {text,image,createdAt}=req.body
-    const userid=req.user.userid
+    const userid=req.user.userId
+    console.log(userid)
     try{
-        const post=new PostModel({text,image,createdAt,userid})
+        const post=new PostModel({user:userid,text,image,createdAt})
         await post.save()
         console.log(post)
         res.send("Post created")
@@ -91,7 +92,7 @@ postRpouter.get("/posts/:id",authenticate,async(req,res)=>{
 
 postRpouter.post("/posts/:id/like",authenticate,async(req,res)=>{
     const postid=req.params.id
-    const userid=req.user.userid
+    const userid=req.user.userId
     
     try{
         const post=await PostModel.findOne({_id:postid})
@@ -121,18 +122,19 @@ postRpouter.post("/posts/:id/like",authenticate,async(req,res)=>{
 
 postRpouter.post("/posts/:id/comment",authenticate,async(req,res)=>{
     const postid=req.params.id
-    const text=req.body
-    const userid=req.user.userid
-    
+    const {text}=req.body
+    const userid=req.user.userId
+    console.log(text)
     try{
         const post=await PostModel.findOne({_id:postid})
-        
+        console.log(post)
         if(!post){
            return res.send("Invalid post")
         }
+        
         const isComment={
             user:userid,
-            text:text
+            text
         }
 
         post.comments.push(isComment)
@@ -141,8 +143,8 @@ postRpouter.post("/posts/:id/comment",authenticate,async(req,res)=>{
         res.send("Post commented")  
 
     }catch(err){
-        console.log(err)
-        res.send({"Msg":"Something went wrong"})
+        res.send(err)
+        // res.send({"Msg":"Something went wrong"})
     }
 })
 

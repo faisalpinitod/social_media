@@ -4,18 +4,18 @@ const jwt=require("jsonwebtoken")
 const authenticate=(req,res,next)=>{
     const token=req.headers.authorization
     if(!token){
-        return res.send("Please login first")
+        return res.status(401).send({error:"Unauthorized, Please Login"})
     }
-    jwt.verify(token,'MASAI',(err,decode)=>{
-        if(decode){
-            req.user={userid:decode.userID}   
-
+    try{
+        const decoded=jwt.verify(token,"MASAI");
+        if(decoded){
+             req.user={userId:decoded.userID};
             next()
-           
-        }else{ 
-            res.send("Please login first")
         }
-    })
+       
+    }catch(err){
+        return res.status(401).send({error:"Unauthorized error, Please Login"})
+    }
 
 
 }
